@@ -1,5 +1,6 @@
 #! python3
-# reads name from xlsx, csv, tsv, json files
+# CertGen.py - python module for writing names on certificate templates
+#            - can read data from xlsx, csv, tsv, json
 
 import os
 from PIL import Image, ImageDraw, ImageFont
@@ -15,6 +16,8 @@ class Certificate():
         self.fontFile = fontFile
         self.fontSize = fontSize
         self.vPosCoordinate = vPosCoordinate
+        self.fields = [self.templateFile, self.name, self.filename,
+                       self.fontFile, self.fontSize, self.vPosCoordinate]
 
         self.certImg = Image.open(self.templateFile)
         self.drawCert = ImageDraw.Draw(self.certImg)
@@ -23,6 +26,8 @@ class Certificate():
 
 
     def generate(self, destination=os.getcwd()):
+        '''Generates a certificate image (.png) with name
+        and saves the file'''
         self.nameWidth, self.nameHeight = self.drawCert.textsize(
             self.name, self.font)
         self.templateWidth, self.templateHeight = self.certImg.size
@@ -38,6 +43,7 @@ class Certificate():
 
 
     def openImg(self, appPath=r'C:\Windows\System32\mspaint.exe'):
+        '''Opens the certificate image for viewing'''
         from subprocess import Popen
         return Popen([appPath, self.certFile])
 
@@ -76,16 +82,14 @@ class Certificates():
                         else:
                             for name in row:
                                 self.names.append(name)
+
         elif self.namesFile.endswith('.json'):
-            pass
-
-# for file in os.listdir('src'):
-#     if file.endswith('csv') or file.endswith('tsv') or file.endswith('xlsx'):
-#         certificates = Certificates(os.path.join('src', file))
-#         certificate = Certificate('src/certificate_template_1.png', certificates.names[0])
-#         certificate.generate()
-#         certificate.openImg()
-#         print(certificate.templateFile)
-#         break
-
-
+            import json
+            with open(self.namesFile, 'r') as jsonFile:
+                namesDict = json.loads(jsonFile.readlines()[0])
+            for value in namesDict.values():
+                if isinstance(value, list):
+                    for name in value:
+                        self.names.append(name)
+                else:
+                    self.names.append(value)
