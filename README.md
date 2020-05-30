@@ -25,3 +25,7 @@ print(certObj.fields) # view fields on certificate object
 certObj.generate() # generate certificate file and save
 certObj.openImg() # open generated certificate file
 ```
+
+
+### Certificates class
+#TODO - multiple certificate generation
