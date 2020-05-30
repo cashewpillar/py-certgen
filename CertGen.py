@@ -1,58 +1,24 @@
 #! python3
-# reads name from xlsx, csv, json files
+# reads name from xlsx, csv, tsv, json files
 
 import os
-import openpyxl
 from PIL import Image, ImageDraw, ImageFont
 
-# SOURCE = 'C:/python_files/certificate_generator/src'
-# DESTINATION = 'C:/python_files/certificate_generator/generated_certificates'
-# CERTIFICATE_TEMPLATE = 'certificate_template_1.png'
-# names_xlsx = 'certificate_names.xlsx'
-
-# os.chdir(SOURCE)
-# FONT = ImageFont.truetype('Merriweather-Bold.ttf', 42)
-
-
-# generate_certificates(names_xlsx)
-
-
-
-# May 29 Trial
-# Aligning name to certificate template
-
-# Set templateWidth and templateHeight
-# Set a vertical placement for name
-# Get nameWidth and nameHeight
-# Subtract nameWidthHalf from templateWidthHalf
-# Subtract nameHeight from (templateHeight - verticalPlacementHeight)
-
-import subprocess
-# xl = openpyxl.open('certificate_names.xlsx')
-# sheet = xl.active
-
-# for cell in sheet.iter_rows():
-#     filename = generateCert(cell[0].value)
-#     openImg(os.path.join(r'C:\python_files\certificate_generator\0529_test', filename))
-
-os.chdir('src')
-
-# FONT = ImageFont.truetype('Merriweather-Bold.ttf', 42)
 class Certificate():
     def __init__(
-            self, template, name,
-            fontFamily="Merriweather-Bold.ttf",
+            self, templateFile, name,
+            fontFile="src/Merriweather-Bold.ttf",
             fontSize=42, vPosCoordinate=635):
-        self.template = template
+        self.templateFile = templateFile
         self.name = name
         self.filename = f'Certificate-{"-".join(self.name.split(" "))}.png'
-        self.fontFamily = fontFamily
+        self.fontFile = fontFile
         self.fontSize = fontSize
         self.vPosCoordinate = vPosCoordinate
 
-        self.certImg = Image.open(self.template)
+        self.certImg = Image.open(self.templateFile)
         self.drawCert = ImageDraw.Draw(self.certImg)
-        self.font = ImageFont.truetype(self.fontFamily,
+        self.font = ImageFont.truetype(self.fontFile,
                                        self.fontSize)
 
 
@@ -64,7 +30,7 @@ class Certificate():
         self.x = (self.templateWidth - self.nameWidth) / 2
         self.y = self.vPosCoordinate - self.nameHeight
 
-        self.drawCert.text((self.x,self.y), self.name, fill='black',
+        self.drawCert.text((self.x, self.y), self.name, fill='black',
             font=self.font)
 
         self.certFile = os.path.join(destination, self.filename)
@@ -72,6 +38,54 @@ class Certificate():
 
 
     def openImg(self, appPath=r'C:\Windows\System32\mspaint.exe'):
-        return subprocess.Popen([appPath, self.certFile])
+        from subprocess import Popen
+        return Popen([appPath, self.certFile])
+
+
+class Certificates():
+    def __init__(self, namesFile, file_has_header=False):
+        self.namesFile = namesFile
+        self.file_has_header = file_has_header
+        self.certificates = []
+        self.names = []
+
+        if self.namesFile.endswith('.xlsx'):
+            #TODO: read different formats of tables
+            import openpyxl
+            excelFile = openpyxl.open(self.namesFile)
+            sheet = excelFile.active
+            for cell in sheet.iter_rows():
+                self.names.append(cell[0].value)
+
+        elif self.namesFile.endswith('.csv') or self.namesFile.endswith('.tsv'):
+            import csv
+            with open(self.namesFile, 'r') as csvFile:
+                if self.file_has_header:
+                    csvReader = csv.DictReader(csvFile)
+                    fieldnames = csvReader.fieldnames
+                    for row in csvReader:
+                        for name in row.values():
+                            self.names.append(name)
+                else:
+                    csvReader = csv.reader(csvFile)
+                    for row in csvReader:
+                        if self.namesFile.endswith('.tsv'):
+                            if len(row) > 0:
+                                for name in row[0].split('\t'):
+                                    self.names.append(name)
+                        else:
+                            for name in row:
+                                self.names.append(name)
+        elif self.namesFile.endswith('.json'):
+            pass
+
+# for file in os.listdir('src'):
+#     if file.endswith('csv') or file.endswith('tsv') or file.endswith('xlsx'):
+#         certificates = Certificates(os.path.join('src', file))
+#         certificate = Certificate('src/certificate_template_1.png', certificates.names[0])
+#         certificate.generate()
+#         certificate.openImg()
+#         print(certificate.templateFile)
+#         break
 
 
