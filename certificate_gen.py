@@ -125,7 +125,7 @@ class Certificates():
             self.filepaths.append(certificate.certFile)
 
 
-    def openImgs(self, appPath=r'C:\Windows\System32\mspaint.exe):
+    def openImgs(self, appPath=r'C:\Windows\System32\mspaint.exe'):
         self.openedImgs = []
         for certificate in self.certificates:
             certificate.openImg(appPath)
@@ -135,5 +135,4 @@ class Certificates():
     def closeImgs(self):
         for viewImg in self.openedImgs:
             viewImg.terminate()
-
 
