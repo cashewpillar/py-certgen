@@ -1,6 +1,7 @@
 # Certificate-Generator
 Desktop application for generating certificates from a list of names (file formats: .xlsx .csv .tsv .json)
 
+
 ## Certificate class
 ##### Create a certificate object with fields that provide information such as:
 * the templateFile (certificate img) to be used
