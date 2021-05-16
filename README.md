@@ -1,5 +1,5 @@
 # Certificate-Generator
-Python class definition for objects that can generating certificates from a list of names (file formats: .xlsx .csv .tsv .json)
+Python class definition for objects that can generate certificates from a list of names (file formats: .xlsx .csv .tsv .json)
 
 ## Certificate class
 ##### Create a certificate object with fields that provide information such as:
